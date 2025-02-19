@@ -24,6 +24,7 @@ local TimerLabel = Instance.new("TextLabel", ScreenGui)
 local StopButton = Instance.new("TextButton", ScreenGui)
 local RestartButton = Instance.new("TextButton", ScreenGui)
 local ResumeButton = Instance.new("TextButton", ScreenGui)
+local ChatToggleButton = Instance.new("TextButton", ScreenGui)
 
 TimerLabel.Size = UDim2.new(0, 200, 0, 50)
 TimerLabel.Position = UDim2.new(0.5, -100, 0.1, 0)
@@ -47,8 +48,14 @@ ResumeButton.Position = UDim2.new(0.5, -50, 0.2, 0)
 ResumeButton.BackgroundColor3 = Color3.new(0, 0, 1)
 ResumeButton.Text = "Resume Timer"
 
+ChatToggleButton.Size = UDim2.new(0, 150, 0, 50)
+ChatToggleButton.Position = UDim2.new(0.5, -75, 0.3, 0)
+ChatToggleButton.BackgroundColor3 = Color3.new(1, 1, 0)
+ChatToggleButton.Text = "Stop Chatting"
+
 local countdown = 120
 local timerRunning = true
+local chatRunning = true
 
 local _TTSERVICE = cloneref(game:GetService('TextChatService'))
 local _TCHANNEL = _TTSERVICE.TextChannels.RBXGeneral
@@ -57,25 +64,25 @@ local function sendChatMessage(C_1)
 end
 
 local function serverHop()
-        local PlaceId, JobId = game.PlaceId, game.JobId
-        local httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
-    	if httprequest then
-		local servers = {}
-		local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100", PlaceId)})
-		local body = HttpService:JSONDecode(req.Body)
-		if body and body.data then
-			for i, v in next, body.data do
-				if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
-					table.insert(servers, 1, v.id)
-				end
-			end
-		end
-		if #servers > 0 then
-			TeleportService:TeleportToPlaceInstance(PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
+    local PlaceId, JobId = game.PlaceId, game.JobId
+    local httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+    if httprequest then
+        local servers = {}
+        local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100", PlaceId)})
+        local body = HttpService:JSONDecode(req.Body)
+        if body and body.data then
+            for i, v in next, body.data do
+                if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
+                    table.insert(servers, 1, v.id)
+                end
+            end
+        end
+        if #servers > 0 then
+            TeleportService:TeleportToPlaceInstance(PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
         else
             print("FAILED EXCEPTION FROM USERMODE")
         end
-	end
+    end
 end
 
 local function startTimer()
@@ -111,29 +118,21 @@ ResumeButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Message system
+ChatToggleButton.MouseButton1Click:Connect(function()
+    chatRunning = not chatRunning
+    ChatToggleButton.Text = chatRunning and "Stop Chatting" or "Keep Chatting"
+end)
+
 task.spawn(function()
-    local messages = {
-        "Grab your sword and challenge the noob in an epic duel!",
-        "¡Toma tu espada y desafía al noob en un duelo épico!",
-        "Does anyone have the courage to face the noob in a sword fight? Join now!",
-        "¿Alguien tiene el valor de enfrentarse al noob en una pelea con espada? ¡Únete ahora!",
-        "Test your sword skills against the noob and claim victory!",
-        "¡Pon a prueba tus habilidades con la espada contra el noob y reclama la victoria!",
-        "Step into the arena and fight like a true warrior!",
-        "¡Entra en la arena y lucha como un verdadero guerrero!",
-        "Join the sword fight and show your strength!",
-        "¡Únete a la pelea con espada y muestra tu fuerza!",
-        "Victory awaits those who dare to battle!",
-        "¡La victoria espera a quienes se atreven a pelear!",
-        "Win a sword fight and claim your honor!",
-        "¡Gana una pelea con espada y reclama tu honor!"
-    }
+    local messages = {"Grab your sword and challenge the noob in an epic duel!", "¡Toma tu espada y desafía al noob en un duelo épico!"}
     while true do
-        for _, msg in ipairs(messages) do
-            sendChatMessage(msg)
-            task.wait(math.random(1, 15))
+        if chatRunning then
+            for _, msg in ipairs(messages) do
+                sendChatMessage(msg)
+                task.wait(math.random(1, 15))
+            end
         end
     end
 end)
+
 loadstring(game:HttpGet('https://raw.githubusercontent.com/yeerma/1/main/bot'))()
