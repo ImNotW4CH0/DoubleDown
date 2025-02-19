@@ -1,3 +1,4 @@
+task.wait(5)
 if game:GetService("StarterGui").WaitingForOpponent["Bottom Middle"].WaitingForOpponent.Visible == false then
     local args = {
         [1] = "SwordFight",
