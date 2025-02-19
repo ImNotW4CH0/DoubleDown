@@ -68,7 +68,7 @@ local function startTimer()
     end
     if countdown <= 0 then
         serverHop()
-        queueonteleport("print"))
+        queueonteleport(loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Alpha"))())
     end
 end
 
