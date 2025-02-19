@@ -67,7 +67,8 @@ local function startTimer()
         countdown = countdown - 1
     end
     if countdown <= 0 then
-        queueonteleport(loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Alpha"))())
+        queueonteleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Alpha"))()')
+        task.wait(0.5)
         serverHop()
     end
 end
