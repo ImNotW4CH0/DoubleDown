@@ -126,7 +126,14 @@ ChatToggleButton.MouseButton1Click:Connect(function()
 end)
 
 task.spawn(function()
-    local messages = {"Grab your sword and challenge the noob in an epic duel!", "¡Toma tu espada y desafía al noob en un duelo épico!"}
+    local messages = {
+        "Yoo join my match only 20",
+        "Join my sword fight you heard that right only 20 n get tha 💰",
+        "Step up and duel—20R on da line 🎯",
+        "Think you can win? Prize: 20R! ⚔️",
+        "Without fear of success! Rise that🏆and join my match!",
+        "Prove your skills in my duel!"
+    }
     while true do
         if chatRunning then
             for _, msg in ipairs(messages) do
