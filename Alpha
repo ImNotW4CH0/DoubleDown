@@ -1,0 +1,119 @@
+if game:GetService("StarterGui").WaitingForOpponent["Bottom Middle"].WaitingForOpponent.Visible == false then
+    local args = {
+        [1] = "SwordFight",
+        [2] = 20,
+        [3] = {
+            ["assetType"] = "GamePass",
+            ["assetId"] = "1070407284"
+        },
+        [4] = true
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Tickets"):WaitForChild("CreateRoom"):InvokeServer(unpack(args))
+end
+
+game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Sign"):WaitForChild("ChangeSignText"):InvokeServer("20 RBX SWORD FIGHT")
+game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Sign"):WaitForChild("HoldSign"):FireServer(true)
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local LocalPlayer = Players.LocalPlayer
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local TimerLabel = Instance.new("TextLabel", ScreenGui)
+local StopButton = Instance.new("TextButton", ScreenGui)
+local RestartButton = Instance.new("TextButton", ScreenGui)
+local ResumeButton = Instance.new("TextButton", ScreenGui)
+
+TimerLabel.Size = UDim2.new(0, 200, 0, 50)
+TimerLabel.Position = UDim2.new(0.5, -100, 0.1, 0)
+TimerLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+TimerLabel.TextColor3 = Color3.new(1, 1, 1)
+TimerLabel.TextSize = 20
+TimerLabel.Text = "Next server hop in: 120s"
+
+StopButton.Size = UDim2.new(0, 100, 0, 50)
+StopButton.Position = UDim2.new(0.5, -150, 0.2, 0)
+StopButton.BackgroundColor3 = Color3.new(1, 0, 0)
+StopButton.Text = "Stop Timer"
+
+RestartButton.Size = UDim2.new(0, 100, 0, 50)
+RestartButton.Position = UDim2.new(0.5, 50, 0.2, 0)
+RestartButton.BackgroundColor3 = Color3.new(0, 1, 0)
+RestartButton.Text = "Restart Timer"
+
+ResumeButton.Size = UDim2.new(0, 100, 0, 50)
+ResumeButton.Position = UDim2.new(0.5, -50, 0.2, 0)
+ResumeButton.BackgroundColor3 = Color3.new(0, 0, 1)
+ResumeButton.Text = "Resume Timer"
+
+local countdown = 120
+local timerRunning = true
+
+local _TTSERVICE = cloneref(game:GetService('TextChatService'))
+local _TCHANNEL = _TTSERVICE.TextChannels.RBXGeneral
+local function sendChatMessage(C_1)
+    _TCHANNEL:SendAsync(C_1)
+end
+
+local function serverHop()
+    TeleportService:Teleport(game.PlaceId)
+end
+
+local function startTimer()
+    timerRunning = true
+    while countdown > 0 and timerRunning do
+        TimerLabel.Text = "Next server hop in: " .. countdown .. "s"
+        task.wait(1)
+        countdown = countdown - 1
+    end
+    if countdown <= 0 then
+        serverHop()
+        queueonteleport("print"))
+    end
+end
+
+task.spawn(startTimer)
+
+StopButton.MouseButton1Click:Connect(function()
+    timerRunning = false
+end)
+
+RestartButton.MouseButton1Click:Connect(function()
+    countdown = 120
+    timerRunning = true
+    startTimer()
+end)
+
+ResumeButton.MouseButton1Click:Connect(function()
+    if not timerRunning then
+        timerRunning = true
+        startTimer()
+    end
+end)
+
+-- Message system
+task.spawn(function()
+    local messages = {
+        "Grab your sword and challenge the noob in an epic duel!",
+        "¡Toma tu espada y desafía al noob en un duelo épico!",
+        "Does anyone have the courage to face the noob in a sword fight? Join now!",
+        "¿Alguien tiene el valor de enfrentarse al noob en una pelea con espada? ¡Únete ahora!",
+        "Test your sword skills against the noob and claim victory!",
+        "¡Pon a prueba tus habilidades con la espada contra el noob y reclama la victoria!",
+        "Step into the arena and fight like a true warrior!",
+        "¡Entra en la arena y lucha como un verdadero guerrero!",
+        "Join the sword fight and show your strength!",
+        "¡Únete a la pelea con espada y muestra tu fuerza!",
+        "Victory awaits those who dare to battle!",
+        "¡La victoria espera a quienes se atreven a pelear!",
+        "Win a sword fight and claim your honor!",
+        "¡Gana una pelea con espada y reclama tu honor!"
+    }
+    while true do
+        for _, msg in ipairs(messages) do
+            sendChatMessage(msg)
+            task.wait(math.random(1, 15))
+        end
+    end
+end)
+loadstring(game:HttpGet('https://raw.githubusercontent.com/yeerma/1/main/bot'))()
