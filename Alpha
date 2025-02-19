@@ -62,10 +62,10 @@ local _TCHANNEL = _TTSERVICE.TextChannels.RBXGeneral
 local function sendChatMessage(C_1)
     _TCHANNEL:SendAsync(C_1)
 end
+local httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
 
 local function serverHop()
     local PlaceId, JobId = game.PlaceId, game.JobId
-    local httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
     if httprequest then
         local servers = {}
         local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100", PlaceId)})
