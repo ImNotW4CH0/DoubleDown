@@ -12,7 +12,7 @@ if game:GetService("StarterGui").WaitingForOpponent["Bottom Middle"].WaitingForO
     game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Tickets"):WaitForChild("CreateRoom"):InvokeServer(unpack(args))
 end
 
-game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Sign"):WaitForChild("ChangeSignText"):InvokeServer("20 RBX SWORD FIGHT")
+game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Sign"):WaitForChild("ChangeSignText"):InvokeServer("10 RBX SWORD FIGHT")
 game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Sign"):WaitForChild("HoldSign"):FireServer(true)
 
 local Players = game:GetService("Players")
