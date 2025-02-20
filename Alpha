@@ -2,10 +2,10 @@ task.wait(5)
 if game:GetService("StarterGui").WaitingForOpponent["Bottom Middle"].WaitingForOpponent.Visible == false then
     local args = {
         [1] = "SwordFight",
-        [2] = 20,
+        [2] = 10,
         [3] = {
             ["assetType"] = "GamePass",
-            ["assetId"] = "1070407284"
+            ["assetId"] = "1069648461"
         },
         [4] = true
     }
