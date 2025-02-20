@@ -115,7 +115,7 @@ StopButton.MouseButton1Click:Connect(function()
 end)
 
 RestartButton.MouseButton1Click:Connect(function()
-    countdown = 120
+    countdown = 180
     timerRunning = true
     startTimer()
 end)
