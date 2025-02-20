@@ -134,10 +134,10 @@ end)
 
 task.spawn(function()
     local messages = {
-        "Yoo join my match only 20",
-        "Join my sword fight you heard that right only 20 n get tha 💰",
-        "Step up and duel—20R on da line 🎯",
-        "Think you can win? Prize: 20R! ⚔️",
+        "Yoo join my match only 10",
+        "Join my sword fight you heard that right only 10 n get tha 💰",
+        "Step up and duel—10R on da line 🎯",
+        "Think you can win? Prize: 10R! ⚔️",
         "Without fear of success! Rise that🏆and join my match!",
         "Prove your skills in my duel!"
     }
