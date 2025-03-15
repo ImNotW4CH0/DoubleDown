@@ -135,6 +135,7 @@ spawn(function()
         local elapsedTime = tick() - startTime
         if elapsedTime >= 900 then  -- 15 minutes (900 seconds)
         queueonteleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Alpha2"))()')
+	task.wait(2)
             print("15 minutes have passed, proceeding with server hop...")
 
             -- Wait for the display name to become "FBI VS ????"
