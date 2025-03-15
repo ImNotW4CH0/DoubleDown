@@ -139,8 +139,8 @@ spawn(function()
             print("15 minutes have passed, proceeding with server hop...")
 
             -- Wait for the display name to become "FBI VS ????"
-            while WaitingForOpponent.Text ~= "FBI VS ????" do
-                print("Waiting for display name to become 'FBI VS ????'...")
+            while WaitingForOpponent.Text ~= game.Players.LocalPlayer.DisplayName.." VS ????" do
+                print("Waiting for display name to become game.Players.LocalPlayer.DisplayName.." VS ????'...")
                 wait(5)
             end
 
