@@ -1,0 +1,154 @@
+getgenv().a = true
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local WaitingForOpponent = PlayerGui:WaitForChild("WaitingForOpponent")["Bottom Middle"].WaitingForOpponent.Background.Inside.DisplayName
+local RemoteCalls = ReplicatedStorage:WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Tickets")
+
+local assets = {"1082615129", "1082867059"}
+local lastDisplayName = WaitingForOpponent.Text
+local GC = getconnections or get_signal_cons
+
+		for i,v in pairs(GC(Players.LocalPlayer.Idled)) do
+			if v["Disable"] then
+				v["Disable"](v)
+			elseif v["Disconnect"] then
+				v["Disconnect"](v)
+			end
+		end
+
+        local VirtualUser = cloneref(game:GetService("VirtualUser"))
+		Players.LocalPlayer.Idled:Connect(function()
+			VirtualUser:CaptureController()
+			VirtualUser:ClickButton2(Vector2.new())
+		end)
+
+local function destroyAndCreateRoom()
+    print("Attempting to destroy and create room...")
+    local DestroyRoomSuccess, DestroyRoomError = pcall(function()
+        RemoteCalls:WaitForChild("DestroyRoom"):InvokeServer()
+    end)
+
+    if not DestroyRoomSuccess then
+        print("Error destroying room: " .. DestroyRoomError)
+    else
+        print("Room destroyed successfully.")
+    end
+
+    local chosenAsset = assets[math.random(1, #assets)]
+    local args = {
+        [1] = "JumpRope",
+        [2] = 10,
+        [3] = { ["assetType"] = "GamePass", ["assetId"] = chosenAsset },
+        [4] = true
+    }
+
+    local CreateRoomSuccess, CreateRoomError = pcall(function()
+        RemoteCalls:WaitForChild("CreateRoom"):InvokeServer(unpack(args))
+    end)
+
+    if not CreateRoomSuccess then
+        print("Error creating room: " .. CreateRoomError)
+    else
+        print("Room created successfully.")
+    end
+end
+
+local function serverHop()
+    print("Attempting server hop...")
+    local servers = {}
+    local url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)
+    local success, req = pcall(function()
+        return request({Url = url, Method = "GET"})
+    end)
+
+    if not success or not req or not req.Body then
+        print("Failed to retrieve server data.")
+        return
+    end
+
+    local success, body = pcall(function()
+        return HttpService:JSONDecode(req.Body)
+    end)
+
+    if not success or not body or not body.data then
+        print("Failed to decode server data.")
+        return
+    end
+
+    print("Retrieved server data successfully.")
+    for _, v in ipairs(body.data) do
+        if v.playing and v.maxPlayers and v.playing < v.maxPlayers and v.playing >= 15 and v.id ~= game.JobId then
+            print("Found server: " .. v.id)
+            table.insert(servers, v.id)
+        end
+    end
+
+    if #servers > 0 then
+        print("Teleporting to server: " .. servers[math.random(1, #servers)])
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
+    else
+        print("No servers available for teleport.")
+    end
+end
+
+local function destroyArenaChildren()
+    for _, v in next, workspace.ArenasREAL:GetChildren() do
+        if v:FindFirstChild("ArenaTemplate") then
+            if v.ArenaTemplate.Red.PlayerText.SurfaceGui.TextLabel["_entirePhrase"][1]["_untranslatableText"].Value == game.Players.LocalPlayer.DisplayName then
+                print("Destroying children in arena: " .. v.Name)
+                if v:FindFirstChild("PlayingArenaTemplate") then
+                    for _, upChild in next, v.PlayingArenaTemplate.Up:GetChildren() do
+                        print("Destroying Up child: " .. upChild.Name)
+                        upChild:Destroy()
+                    end
+                    for _, downChild in next, v.PlayingArenaTemplate.Down:GetChildren() do
+                        print("Destroying Down child: " .. downChild.Name)
+                        downChild:Destroy()
+                    end
+                end
+            end
+        end
+    end
+end
+
+wait(10)
+
+spawn(function()
+    local startTime = tick()  -- Record the start time of the script
+
+    while getgenv().a do
+        print("Checking display name... Current display name: " .. WaitingForOpponent.Text)
+
+        -- Destroy and create room continuously with a 10-second cooldown
+        destroyAndCreateRoom()
+        wait(10)  -- Cooldown for destroyAndCreateRoom (10 seconds)
+
+        -- Continuously destroy arena children with a 1-second cooldown
+        destroyArenaChildren()
+        wait(1)  -- Cooldown for destroyArenaChildren (1 second)
+
+        -- Check if 15 minutes have passed since script execution
+        local elapsedTime = tick() - startTime
+        if elapsedTime >= 900 then  -- 15 minutes (900 seconds)
+            print("15 minutes have passed, proceeding with server hop...")
+
+            -- Wait for the display name to become "FBI VS ????"
+            while WaitingForOpponent.Text ~= "FBI VS ????" do
+                print("Waiting for display name to become 'FBI VS ????'...")
+                wait(5)
+            end
+
+            print("Display name is 'FBI VS ????', proceeding with server hop...")
+            serverHop()
+
+            -- Reset the start time after the server hop
+            startTime = tick()
+        end
+
+        wait(1)  -- Sleep to prevent overloading the loop
+    end
+end)
