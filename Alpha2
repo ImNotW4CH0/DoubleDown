@@ -28,7 +28,7 @@ Players.LocalPlayer.Idled:Connect(function()
 end)
 
 local function destroyAndCreateRoom()
-    if Players.LocalPlayer.Name == "Zoom_Gold3n2016" then
+    if Players.LocalPlayer.Name == "Zoom_Gold3n2016" or Players.LocalPlayer.Name == "Dupeaccount6950" then
         assets = {"1083584829"}
         roomSize = 20
     else
