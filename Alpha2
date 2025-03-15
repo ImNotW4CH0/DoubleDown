@@ -36,7 +36,7 @@ local function destroyAndCreateRoom()
     end
     
     print("Attempting to destroy and create room...")
-    pcall(function() RemoteCalls:WaitForChild("DestroyRoom"):InvokeServer() end)
+    RemoteCalls:WaitForChild("DestroyRoom"):InvokeServer()
     local chosenAsset = assets[math.random(1, #assets)]
     local args = {"JumpRope", roomSize, { ["assetType"] = "GamePass", ["assetId"] = chosenAsset }, true}
     pcall(function() RemoteCalls:WaitForChild("CreateRoom"):InvokeServer(unpack(args)) end)
