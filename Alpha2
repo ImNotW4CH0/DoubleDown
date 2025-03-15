@@ -9,7 +9,7 @@ local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 local WaitingForOpponent = PlayerGui:WaitForChild("WaitingForOpponent")["Bottom Middle"].WaitingForOpponent.Background.Inside.DisplayName
 local RemoteCalls = ReplicatedStorage:WaitForChild("RemoteCalls"):WaitForChild("GameSpecific"):WaitForChild("Tickets")
 
-local assets = {"1082615129", "1082867059"}
+local assets = {"1105949796", "1107050475", "1069666625", "1069648461", "1069152292"}
 local lastDisplayName = WaitingForOpponent.Text
 local GC = getconnections or get_signal_cons
 
