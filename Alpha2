@@ -27,6 +27,9 @@ local GC = getconnections or get_signal_cons
 		end)
 
 local function destroyAndCreateRoom()
+    if game.Players.LocalPlayer.Name == "Zoom_Gold3n2016" then
+	assets = {"1083584829"}
+    end
     print("Attempting to destroy and create room...")
     local DestroyRoomSuccess, DestroyRoomError = pcall(function()
         RemoteCalls:WaitForChild("DestroyRoom"):InvokeServer()
