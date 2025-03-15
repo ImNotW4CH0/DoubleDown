@@ -140,7 +140,7 @@ spawn(function()
 
             -- Wait for the display name to become "FBI VS ????"
             while WaitingForOpponent.Text ~= game.Players.LocalPlayer.DisplayName.." VS ????" do
-                print("Waiting for display name to become game.Players.LocalPlayer.DisplayName.." VS ????'...")
+		print("Waiting for display name to become " .. game.Players.LocalPlayer.DisplayName .. " VS ????...")
                 wait(5)
             end
 
