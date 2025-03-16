@@ -1,3 +1,4 @@
+task.wait(5)
 getgenv().a = true
 queueonteleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Alpha2"))()')
 
