@@ -13,6 +13,8 @@ local assets = {"1105949796", "1107050475", "1069666625", "1069648461", "1069152
 local lastDisplayName = WaitingForOpponent.Text
 local GC = getconnections or get_signal_cons
 
+loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'),true))()
+
 for i,v in pairs(GC(Players.LocalPlayer.Idled)) do
     if v["Disable"] then
         v["Disable"](v)
