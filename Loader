@@ -5,13 +5,21 @@ end
 if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto133488" then
     task.wait(5)
     setfpscap(6)
-    
+
     local HttpService = game:GetService("HttpService")
     local TeleportService = game:GetService("TeleportService")
     local Players = game:GetService("Players")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-    local BLACKLISTED_PLAYERS = {"Luna_Duck88", "Tttttt5jrhrud", "KnightPandaBuilder20", "HunterRaven2024YT", "Ac3_V3nom2015", "XxDuckMagicxX2011", "Ne0nLucky2016", "XxCookie_GIGAXX2017", "OwenByteRift201614", "ChillPix3lat3dW0lf", "MasonPro201638", "AlphaGlitchHero", "Eagle_Toxic66", "DARK_Ven0m2017", "Luk3B3ast45", "FoxByteGiga80", "GigaHyperDragon", "RoguePixelDrift", "XxRogueHeroxX87", "StreamDriftNova", "HawkStarryPixelated1", "Olivia_Jelly201174", "BlazeC00kie2014", "VenomSilverAlpha", "LuckyChas3Mast3r", "SparklyLegend45", "Jayd3nNova86", "Nora_Max2013"}
+    local BLACKLISTED_PLAYERS = {
+        "Luna_Duck88", "Tttttt5jrhrud", "KnightPandaBuilder20", "HunterRaven2024YT", "Ac3_V3nom2015",
+        "XxDuckMagicxX2011", "Ne0nLucky2016", "XxCookie_GIGAXX2017", "OwenByteRift201614", "ChillPix3lat3dW0lf",
+        "MasonPro201638", "AlphaGlitchHero", "Eagle_Toxic66", "DARK_Ven0m2017", "Luk3B3ast45",
+        "FoxByteGiga80", "GigaHyperDragon", "RoguePixelDrift", "XxRogueHeroxX87", "StreamDriftNova",
+        "HawkStarryPixelated1", "Olivia_Jelly201174", "BlazeC00kie2014", "VenomSilverAlpha",
+        "LuckyChas3Mast3r", "SparklyLegend45", "Jayd3nNova86", "Nora_Max2013"
+    }
+
     local CHECK_DELAY = 15 * 60
     local COOLDOWN = 5
     local PLACE_ID = game.PlaceId
@@ -28,56 +36,42 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
         return players
     end
 
-    local function containsBlacklisted()
-        local currentPlayers = getCurrentPlayers()
-        local hasBlacklisted = false
-        local isLocalPlayerBlacklisted = false
+local function containsBlacklisted()
+    local hasBlacklisted = false
+    local isLocalPlayerBlacklisted = false
 
-        for _, blName in ipairs(BLACKLISTED_PLAYERS) do
-            for _, playerName in ipairs(currentPlayers) do
-                if playerName == blName then
-                    if playerName == Players.LocalPlayer.Name then
-                        isLocalPlayerBlacklisted = true
-                    else
-                        hasBlacklisted = true
+    for _, player in ipairs(Players:GetPlayers()) do
+        if table.find(BLACKLISTED_PLAYERS, player.Name) then
+            if player == Players.LocalPlayer then
+                isLocalPlayerBlacklisted = true
+            else
+                hasBlacklisted = true
+            end
+        end
+    end
+
+    return hasBlacklisted, isLocalPlayerBlacklisted
+end
+
+
+    local function fetchValidServers()
+        if not request then return {} end
+        
+        local servers = {}
+        local req = request({
+            Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", PLACE_ID),
+            Method = "GET"
+        })
+        
+        if req.StatusCode == 200 then
+            local body = HttpService:JSONDecode(req.Body)
+            if body and body.data then
+                for _, v in pairs(body.data) do
+                    if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing >= 5 and v.playing < v.maxPlayers and v.id ~= game.JobId then
+                        table.insert(servers, v.id)
                     end
                 end
             end
-        end
-        
-        return hasBlacklisted, isLocalPlayerBlacklisted
-    end
-
-    local function fetchValidServers()
-        local servers = {}
-        local url = "https://games.roblox.com/v1/games/"..PLACE_ID.."/servers/Public?sortOrder=Desc&limit=100"
-        
-        local success, response = pcall(function()
-            return request({
-                Url = url,
-                Method = "GET"
-            })
-        end)
-        
-        if success and response and response.StatusCode == 200 then
-            local data = HttpService:JSONDecode(response.Body)
-            for _, server in ipairs(data.data) do
-                if server.id ~= game.JobId and server.playing >= 5 and server.playing < server.maxPlayers then
-                    table.insert(servers, server.id)
-                end
-            end
-        else
-            local fallbackServers = TeleportService:GetRandomInstances(PLACE_ID, 100)
-            for _, instance in ipairs(fallbackServers) do
-                if instance ~= game.JobId then
-                    table.insert(servers, instance)
-                end
-            end
-        end
-        
-        for i = #servers, 2, -1 do
-            local j = math.random(i)
-            servers[i], servers[j] = servers[j], servers[i]
         end
         
         return servers
@@ -85,7 +79,7 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
 
     local function waitForNormalColor()
         while true do
-            local character = game.Players.LocalPlayer.Character
+            local character = Players.LocalPlayer.Character
             if character then
                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
@@ -105,36 +99,6 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
         end
     end
 
-    local function safeTeleport()
-        while true do
-            waitForNormalColor()
-            local servers = fetchValidServers()
-            if #servers > 0 then
-                queueonteleport([[
-                    loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Loader"))()
-                ]])
-                
-                local targetServer = servers[math.random(#servers)]
-                local success, err = pcall(function()
-                    TeleportService:TeleportToPlaceInstance(PLACE_ID, targetServer)
-                end)
-                
-                if not success then
-                    task.wait(COOLDOWN)
-                    local success2, err2 = pcall(function()
-                        TeleportService:Teleport(PLACE_ID)
-                    end)
-                    
-                    if not success2 then
-                        task.wait(COOLDOWN * 2)
-                    end
-                end
-            else
-                task.wait(30)
-            end
-        end
-    end
-
     local function destroyRooms()
         while true do
             pcall(function()
@@ -147,28 +111,45 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
         end
     end
 
-    local function main()
+    local function safeTeleport()
         while true do
-            local hasBlacklisted, isLocalPlayerBlacklisted = containsBlacklisted()
+            waitForNormalColor()
+            local servers = fetchValidServers()
 
-            if hasBlacklisted and not isLocalPlayerBlacklisted then
-                task.wait(COOLDOWN)
-                safeTeleport()
-            elseif isLocalPlayerBlacklisted and not hasBlacklisted then
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/MainScript"))()
-                task.wait(CHECK_DELAY)
-                task.spawn(destroyRooms)
-                waitForNormalColor()
-                task.wait(5)
-                safeTeleport()
+            if #servers > 0 then
+                queueonteleport([[
+                    loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Loader"))()
+                ]])
+
+                local success, err = pcall(function()
+                    TeleportService:TeleportToPlaceInstance(PLACE_ID, servers[math.random(#servers)])
+                end)
+
+                if not success then
+                    task.wait(COOLDOWN)
+                    pcall(function()
+                        TeleportService:Teleport(PLACE_ID)
+                    end)
+                end
             else
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/MainScript"))()
-                task.wait(CHECK_DELAY)
-                task.spawn(destroyRooms)
-                waitForNormalColor()
-                task.wait(5)
-                safeTeleport()
+                task.wait(30)
             end
+        end
+    end
+
+    local function main()
+        local hasBlacklisted, isLocalPlayerBlacklisted = containsBlacklisted()
+
+        if hasBlacklisted then
+            task.wait(COOLDOWN)
+            safeTeleport()
+        elseif isLocalPlayerBlacklisted then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/MainScript"))()
+            task.wait(CHECK_DELAY)
+            task.spawn(destroyRooms)
+            waitForNormalColor()
+            task.wait(5)
+            safeTeleport()
         end
     end
 
