@@ -9,7 +9,7 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
     local Players = game:GetService("Players")
 
     local BLACKLISTED_PLAYERS = {"Luna_Duck88", "Tttttt5jrhrud", "KnightPandaBuilder20", "HunterRaven2024YT", "Ac3_V3nom2015", "XxDuckMagicxX2011", "Ne0nLucky2016", "XxCookie_GIGAXX2017", "OwenByteRift201614", "ChillPix3lat3dW0lf", "MasonPro201638", "AlphaGlitchHero", "Eagle_Toxic66", "DARK_Ven0m2017", "Luk3B3ast45", "FoxByteGiga80", "GigaHyperDragon", "RoguePixelDrift", "XxRogueHeroxX87", "StreamDriftNova", "HawkStarryPixelated1", "Olivia_Jelly201174", "BlazeC00kie2014", "VenomSilverAlpha", "LuckyChas3Mast3r", "SparklyLegend45", "Jayd3nNova86", "Nora_Max2013"}
-    local CHECK_DELAY = 15 * 60
+    local CHECK_DELAY = 180 * 60
     local COOLDOWN = 5
     local PLACE_ID = game.PlaceId
 
