@@ -28,31 +28,22 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
         task.wait(1)
     end
 
-    local function getCurrentPlayers()
-        local players = {}
+    local function containsBlacklisted()
+        local hasBlacklisted = false
+        local isLocalPlayerBlacklisted = false
+
         for _, player in ipairs(Players:GetPlayers()) do
-            table.insert(players, player.Name)
-        end
-        return players
-    end
-
-local function containsBlacklisted()
-    local hasBlacklisted = false
-    local isLocalPlayerBlacklisted = false
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if table.find(BLACKLISTED_PLAYERS, player.Name) then
-            if player == Players.LocalPlayer then
-                isLocalPlayerBlacklisted = true
-            else
-                hasBlacklisted = true
+            if table.find(BLACKLISTED_PLAYERS, player.Name) then
+                if player == Players.LocalPlayer then
+                    isLocalPlayerBlacklisted = true
+                else
+                    hasBlacklisted = true
+                end
             end
         end
+
+        return hasBlacklisted, isLocalPlayerBlacklisted
     end
-
-    return hasBlacklisted, isLocalPlayerBlacklisted
-end
-
 
     local function fetchValidServers()
         if not request then return {} end
@@ -78,25 +69,17 @@ end
     end
 
     local function waitForNormalColor()
-        while true do
-            local character = Players.LocalPlayer.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    local bodyColors = humanoid:FindFirstChild("BodyColors")
-                    if bodyColors then
-                        if bodyColors.HeadColor ~= BrickColor.new("Really red") then
-                            return true
-                        end
-                    else
-                        return true
-                    end
-                else
-                    return true
+        local character = Players.LocalPlayer.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                local bodyColors = humanoid:FindFirstChild("BodyColors")
+                if bodyColors and bodyColors.HeadColor == BrickColor.new("Really red") then
+                    return false
                 end
             end
-            task.wait(5)
         end
+        return true
     end
 
     local function destroyRooms()
@@ -112,51 +95,46 @@ end
     end
 
     local function safeTeleport()
-        while true do
-            waitForNormalColor()
-            local servers = fetchValidServers()
+        if not waitForNormalColor() then
+            task.wait(5)
+            return safeTeleport()
+        end
 
-            if #servers > 0 then
-                queueonteleport([[
-                    loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Loader"))()
-                ]])
+        local servers = fetchValidServers()
+        if #servers > 0 then
+            queueonteleport([[
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Loader"))()
+            ]])
 
-                local success, err = pcall(function()
-                    TeleportService:TeleportToPlaceInstance(PLACE_ID, servers[math.random(#servers)])
+            local success, err = pcall(function()
+                TeleportService:TeleportToPlaceInstance(PLACE_ID, servers[math.random(#servers)])
+            end)
+
+            if not success then
+                task.wait(COOLDOWN)
+                pcall(function()
+                    TeleportService:Teleport(PLACE_ID)
                 end)
-
-                if not success then
-                    task.wait(COOLDOWN)
-                    pcall(function()
-                        TeleportService:Teleport(PLACE_ID)
-                    end)
-                end
-            else
-                task.wait(30)
             end
+        else
+            task.wait(30)
+            return safeTeleport()
         end
     end
 
     local function main()
         local hasBlacklisted, isLocalPlayerBlacklisted = containsBlacklisted()
 
-        if hasBlacklisted then
+        if hasBlacklisted and not isLocalPlayerBlacklisted then
             task.wait(COOLDOWN)
             safeTeleport()
-        elseif isLocalPlayerBlacklisted then
+        else
             loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/MainScript"))()
-            task.wait(CHECK_DELAY)
             task.spawn(destroyRooms)
-            waitForNormalColor()
-            task.wait(5)
+            task.wait(CHECK_DELAY)
             safeTeleport()
         end
     end
 
-    while true do
-        local success, err = pcall(main)
-        if not success then
-            task.wait(10)
-        end
-    end
+    main()
 end
