@@ -1,23 +1,24 @@
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
+
 if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto133488" then
     task.wait(5)
     setfpscap(6)
+    
     local HttpService = game:GetService("HttpService")
     local TeleportService = game:GetService("TeleportService")
     local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
     local BLACKLISTED_PLAYERS = {"Luna_Duck88", "Tttttt5jrhrud", "KnightPandaBuilder20", "HunterRaven2024YT", "Ac3_V3nom2015", "XxDuckMagicxX2011", "Ne0nLucky2016", "XxCookie_GIGAXX2017", "OwenByteRift201614", "ChillPix3lat3dW0lf", "MasonPro201638", "AlphaGlitchHero", "Eagle_Toxic66", "DARK_Ven0m2017", "Luk3B3ast45", "FoxByteGiga80", "GigaHyperDragon", "RoguePixelDrift", "XxRogueHeroxX87", "StreamDriftNova", "HawkStarryPixelated1", "Olivia_Jelly201174", "BlazeC00kie2014", "VenomSilverAlpha", "LuckyChas3Mast3r", "SparklyLegend45", "Jayd3nNova86", "Nora_Max2013"}
-    local CHECK_DELAY = 180 * 60
+    local CHECK_DELAY = 15 * 60
     local COOLDOWN = 5
     local PLACE_ID = game.PlaceId
 
-    print("Script Started - Waiting for players to load...")
-
-    repeat task.wait() until #Players:GetPlayers() > 0
-
-    print("Players detected, starting...")
+    while #Players:GetPlayers() == 0 do
+        task.wait(1)
+    end
 
     local function getCurrentPlayers()
         local players = {}
@@ -29,16 +30,10 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
 
     local function containsBlacklisted()
         local currentPlayers = getCurrentPlayers()
-        print("[CHECK] Players currently in server:")
-        for _, p in ipairs(currentPlayers) do
-            print(" - "..p)
-        end
-
         local hasBlacklisted = false
         local isLocalPlayerBlacklisted = false
 
         for _, blName in ipairs(BLACKLISTED_PLAYERS) do
-            print("[CHECK] Looking for blacklist name:", blName)
             for _, playerName in ipairs(currentPlayers) do
                 if playerName == blName then
                     if playerName == Players.LocalPlayer.Name then
@@ -49,8 +44,6 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
                 end
             end
         end
-
-        print("[RESULT] Blacklisted check - LocalPlayer blacklisted:", isLocalPlayerBlacklisted, "Other blacklisted:", hasBlacklisted)
         
         return hasBlacklisted, isLocalPlayerBlacklisted
     end
@@ -59,31 +52,75 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
         local servers = {}
         local url = "https://games.roblox.com/v1/games/"..PLACE_ID.."/servers/Public?sortOrder=Desc&limit=100"
         
-        local response = request({
-            Url = url,
-            Method = "GET"
-        })
+        local success, response = pcall(function()
+            return request({
+                Url = url,
+                Method = "GET"
+            })
+        end)
         
-        if response.StatusCode == 200 then
+        if success and response and response.StatusCode == 200 then
             local data = HttpService:JSONDecode(response.Body)
             for _, server in ipairs(data.data) do
                 if server.id ~= game.JobId and server.playing < server.maxPlayers then
                     table.insert(servers, server.id)
                 end
             end
+        else
+            local fallbackServers = TeleportService:GetRandomInstances(PLACE_ID, 50)
+            for _, instance in ipairs(fallbackServers) do
+                if instance ~= game.JobId then
+                    table.insert(servers, instance)
+                end
+            end
         end
         return servers
     end
 
+    local function waitForNormalColor()
+        while true do
+            local character = game.Players.LocalPlayer.Character
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    local bodyColors = humanoid:FindFirstChild("BodyColors")
+                    if bodyColors then
+                        if bodyColors.HeadColor ~= BrickColor.new("Really red") then
+                            return true
+                        end
+                    else
+                        return true
+                    end
+                else
+                    return true
+                end
+            end
+            task.wait(5)
+        end
+    end
+
     local function safeTeleport()
-        local servers = fetchValidServers()
-        if #servers > 0 then
-            queueonteleport([[
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Loader"))()
-            ]])
-            TeleportService:TeleportToPlaceInstance(PLACE_ID, servers[math.random(#servers)])
-        else
-            warn("No valid servers found")
+        while true do
+            waitForNormalColor()
+            local servers = fetchValidServers()
+            if #servers > 0 then
+                queueonteleport([[
+                    loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Loader"))()
+                ]])
+                
+                local success, err = pcall(function()
+                    TeleportService:TeleportToPlaceInstance(PLACE_ID, servers[math.random(#servers)])
+                end)
+                
+                if not success then
+                    task.wait(COOLDOWN)
+                    local success2, err2 = pcall(function()
+                        TeleportService:Teleport(PLACE_ID)
+                    end)
+                end
+            else
+                task.wait(30)
+            end
         end
     end
 
@@ -101,7 +138,7 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
             task.wait(CHECK_DELAY)
             task.spawn(function()
                 while true do
-                    local RemoteCalls = game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls")
+                    local RemoteCalls = ReplicatedStorage:WaitForChild("RemoteCalls")
                     RemoteCalls:WaitForChild("DestroyRoom"):InvokeServer()
                     task.wait(0.1)
                 end
@@ -114,7 +151,7 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
             task.wait(CHECK_DELAY)
             task.spawn(function()
                 while true do
-                    local RemoteCalls = game:GetService("ReplicatedStorage"):WaitForChild("RemoteCalls")
+                    local RemoteCalls = ReplicatedStorage:WaitForChild("RemoteCalls")
                     RemoteCalls:WaitForChild("DestroyRoom"):InvokeServer()
                     task.wait(0.1)
                 end
@@ -124,5 +161,10 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
         end
     end
 
-    main()
+    while true do
+        local success, err = pcall(main)
+        if not success then
+            task.wait(10)
+        end
+    end
 end
