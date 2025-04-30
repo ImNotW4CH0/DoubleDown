@@ -20,7 +20,7 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
         "LuckyChas3Mast3r", "SparklyLegend45", "Jayd3nNova86", "Nora_Max2013"
     }
 
-    local CHECK_DELAY = 1 * 60
+    local CHECK_DELAY = 7 * 60
     local COOLDOWN = 5
     local PLACE_ID = game.PlaceId
 
