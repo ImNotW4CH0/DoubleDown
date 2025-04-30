@@ -1,4 +1,5 @@
 -- wait b efore telleporting until the opponentName is ??? in safeteleport
+-- it does not close room correctly it just insta tp
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
