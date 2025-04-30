@@ -1,10 +1,16 @@
+-- Ensure the game is fully loaded
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
-if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto133488" then
+rconsoleprint("@@YELLOW@@[DEBUG] Game Loaded\n")
+
+if game.PlaceId == 9476339275 then
+    rconsoleprint("@@YELLOW@@[DEBUG] Script running on correct place and not blacklisted local player\n")
+
     task.wait(5)
     setfpscap(6)
+    rconsoleprint("@@YELLOW@@[DEBUG] FPS cap set to 6\n")
 
     local HttpService = game:GetService("HttpService")
     local TeleportService = game:GetService("TeleportService")
@@ -20,20 +26,25 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
         "LuckyChas3Mast3r", "SparklyLegend45", "Jayd3nNova86", "Nora_Max2013"
     }
 
-    local CHECK_DELAY = 60 * 60
+    local CHECK_DELAY = 60
     local COOLDOWN = 5
     local PLACE_ID = game.PlaceId
 
     while #Players:GetPlayers() == 0 do
+        rconsoleprint("@@YELLOW@@[DEBUG] Waiting for players to load\n")
         task.wait(1)
     end
+
+    rconsoleprint("@@YELLOW@@[DEBUG] Players loaded\n")
 
     local function containsBlacklisted()
         local hasBlacklisted = false
         local isLocalPlayerBlacklisted = false
 
         for _, player in ipairs(Players:GetPlayers()) do
+            rconsoleprint("@@CYAN@@[DEBUG] Checking player: " .. player.Name .. "\n")
             if table.find(BLACKLISTED_PLAYERS, player.Name) then
+                rconsoleprint("@@RED@@[DEBUG] Found blacklisted player: " .. player.Name .. "\n")
                 if player == Players.LocalPlayer then
                     isLocalPlayerBlacklisted = true
                 else
@@ -46,25 +57,33 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
     end
 
     local function fetchValidServers()
-        if not request then return {} end
-        
+        if not request then
+            rconsoleprint("@@RED@@[DEBUG] No request function found\n")
+            return {}
+        end
+
         local servers = {}
         local req = request({
             Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", PLACE_ID),
             Method = "GET"
         })
-        
+
+        rconsoleprint("@@BLUE@@[DEBUG] Request status: " .. tostring(req.StatusCode) .. "\n")
+
         if req.StatusCode == 200 then
             local body = HttpService:JSONDecode(req.Body)
             if body and body.data then
                 for _, v in pairs(body.data) do
-                    if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing >= 5 and v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    rconsoleprint(string.format("@@GREEN@@[DEBUG] Server entry: %s | Players: %s\n", v.id, tostring(v.playing)))
+                    if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers)
+                    and v.playing >= 5 and v.playing < v.maxPlayers and v.id ~= game.JobId then
                         table.insert(servers, v.id)
                     end
                 end
             end
         end
-        
+
+        rconsoleprint("@@YELLOW@@[DEBUG] Servers fetched: " .. #servers .. "\n")
         return servers
     end
 
@@ -74,8 +93,11 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
             local humanoid = character:FindFirstChildOfClass("Humanoid")
             if humanoid then
                 local bodyColors = humanoid:FindFirstChild("BodyColors")
-                if bodyColors and bodyColors.HeadColor == BrickColor.new("Really red") then
-                    return false
+                if bodyColors then
+                    rconsoleprint("@@CYAN@@[DEBUG] Current HeadColor: " .. bodyColors.HeadColor.Name .. "\n")
+                    if bodyColors.HeadColor == BrickColor.new("Really red") then
+                        return false
+                    end
                 end
             end
         end
@@ -95,43 +117,54 @@ if game.PlaceId == 9476339275 and game.Players.LocalPlayer.Name ~= "ernesto13348
     end
 
     local function safeTeleport()
+        rconsoleprint("@@YELLOW@@[DEBUG] safeTeleport called\n")
+
         if not waitForNormalColor() then
+            rconsoleprint("@@RED@@[DEBUG] Player is red, retrying in 5 seconds\n")
             task.wait(5)
             return safeTeleport()
         end
 
+        task.spawn(destroyRooms)
+        task.wait(10)
+
         local servers = fetchValidServers()
         if #servers > 0 then
-            queueonteleport([[
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Loader"))()
-            ]])
+            rconsoleprint("@@GREEN@@[DEBUG] Teleporting to new server\n")
+            queueonteleport([[loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/Loader"))()]])
 
             local success, err = pcall(function()
                 TeleportService:TeleportToPlaceInstance(PLACE_ID, servers[math.random(#servers)])
             end)
 
             if not success then
+                rconsoleprint("@@RED@@[DEBUG] Teleport failed: " .. tostring(err) .. "\n")
                 task.wait(COOLDOWN)
                 pcall(function()
                     TeleportService:Teleport(PLACE_ID)
                 end)
             end
         else
+            rconsoleprint("@@RED@@[DEBUG] No valid servers found, retrying in 30s\n")
             task.wait(30)
             return safeTeleport()
         end
     end
 
     local function main()
+        rconsoleprint("@@YELLOW@@[DEBUG] Running main()\n")
         local hasBlacklisted, isLocalPlayerBlacklisted = containsBlacklisted()
 
         if hasBlacklisted and not isLocalPlayerBlacklisted then
+            rconsoleprint("@@RED@@[DEBUG] Blacklisted player found, initiating teleport\n")
             task.wait(COOLDOWN)
             safeTeleport()
         else
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/ImNotW4CH0/DoubleDown/refs/heads/main/MainScript"))()
-            task.spawn(destroyRooms)
+            rconsoleprint("@@GREEN@@[DEBUG] No threats, loading main script\n")
+            rconsoleprint("@@WHITE@@HELLO! EXECUTION GOES HERE!\n")
             task.wait(CHECK_DELAY)
+            task.spawn(destroyRooms)
+            task.wait(5)
             safeTeleport()
         end
     end
